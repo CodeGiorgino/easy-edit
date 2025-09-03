@@ -44,8 +44,8 @@ namespace gui {
                 return (Rectangle) {
                     .x = position.x,
                     .y = position.y,
-                    .width  = position.x + size.x,
-                    .height = position.y + size.y
+                    .width  = size.x,
+                    .height = size.y
                 };
             }
 
@@ -55,9 +55,6 @@ namespace gui {
 
                 hasChanged = isMouseColliding != isFocused;
                 isFocused = isMouseColliding;
-                if (isFocused) {
-                    std::println("[d] button focused");
-                }
             }
 
             auto draw() const noexcept -> void {
@@ -83,15 +80,17 @@ namespace gui {
             std::vector<std::unique_ptr<component>> items = {};
 
             auto get_size() const noexcept -> Vector2 {
+                // TODO: calculate real size
                 return size;
             }
 
             auto get_bounds() const noexcept -> Rectangle {
+                // TODO: calculate real bounds
                 return (Rectangle) {
                     .x = position.x,
                     .y = position.y,
-                    .width  = position.x + size.x,
-                    .height = position.y + size.y
+                    .width  = size.x,
+                    .height = size.y
                 };
             }
 
@@ -104,13 +103,10 @@ namespace gui {
 
                     ClearBackground(BLANK);
                     for (auto& item : items) {
-                        const auto itemPosition = item->position;
                         const auto itemSize = item->get_size();
-
-                        item->position.x += xOffset;
-                        item->position.y += yOffset;
+                        item->position.x = xOffset;
+                        item->position.y = yOffset;
                         item->draw();
-                        item->position = itemPosition;
 
                         if (direction == flex::COLUMN) {
                             yOffset += itemSize.y + gap.y;
@@ -123,26 +119,10 @@ namespace gui {
             }
 
             auto update() noexcept -> void {
-                auto xOffset = 0.f;
-                auto yOffset = 0.f;
-
                 for (auto& item : items) {
-                    const auto itemPosition = item->position;
-                    const auto itemSize = item->get_size();
-
-                    item->position.x += xOffset;
-                    item->position.y += yOffset;
                     item->update();
-                    item->position = itemPosition;
-
                     if (item->hasChanged) {
                         hasChanged = true;
-                    }
-
-                    if (direction == flex::COLUMN) {
-                        yOffset += itemSize.y + gap.y;
-                    } else if (direction == flex::ROW) {
-                        xOffset += itemSize.x + gap.x;
                     }
                 }
 
@@ -154,10 +134,6 @@ namespace gui {
             }
 
             auto draw() const noexcept -> void {
-                if (items.size() == 0) {
-                    return;
-                }
-
                 DrawTextureRec(
                     _targetTexture.texture,
                     (Rectangle) { 0, 0, size.x, -size.y },
@@ -210,8 +186,8 @@ int main(void)
                 sidebar.hasChanged = true;
             }
 
-            sidebar.update();
             sidebar.draw();
+            sidebar.update();
         }
         EndDrawing();
     }
