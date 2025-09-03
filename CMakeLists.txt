@@ -1,6 +1,6 @@
 # Copied from: https://github.com/raysan5/raylib/blob/master/projects/CMake/CMakeLists.txt
 
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.12)
 project(notes)
 
 # Generate compile_commands.json
@@ -25,7 +25,10 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
 endif()
 
 # Project
-add_executable(${PROJECT_NAME} src/main.cc)
+file(GLOB SOURCES CONFIGURE_DEPENDS 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hh)
+add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(${PROJECT_NAME} raylib)
 
 # Web Configurations
