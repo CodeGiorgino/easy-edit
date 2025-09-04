@@ -1,7 +1,7 @@
 # Copied from: https://github.com/raysan5/raylib/blob/master/projects/CMake/CMakeLists.txt
 
 cmake_minimum_required(VERSION 3.12)
-project(notes)
+project(ed)
 
 # Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -25,6 +25,7 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
 endif()
 
 # Project
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
 file(GLOB SOURCES CONFIGURE_DEPENDS 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hh)

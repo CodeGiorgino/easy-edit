@@ -15,19 +15,16 @@ namespace gui {
             CheckCollisionPointRec(GetMousePosition(), bounds());
 
         hasChanged = isMouseColliding != isFocused;
-        isFocused = isMouseColliding;
+        isFocused  = isMouseColliding;
     }
 
     auto button::draw() const noexcept -> void {
-        DrawRectangleV(
-                position, 
-                size, 
-                isFocused ? palette.bg2 : palette.bg1);
+        DrawRectangleV( position, size, isFocused 
+                ? palette.bg2 : palette.bg1);
 
-        DrawText(label.c_str(),
-                position.x + padding.x,
-                position.y + padding.y,
-                fontSize,
-                palette.fg0);
+        DrawTextEx(*font, label.c_str(), (Vector2) {
+                    position.x + padding.x,
+                    position.y + padding.y
+                }, font->baseSize, 1, palette.fg0);
     }
 } // namespace gui
