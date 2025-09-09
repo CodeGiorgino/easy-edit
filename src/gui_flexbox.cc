@@ -1,12 +1,12 @@
-#include "gui_flexbox.hh"
+#include "gui.hh"
 
 namespace gui {
     auto flexbox::bounds() const noexcept -> Rectangle {
         return (Rectangle) {
             .x = position.x,
-                .y = position.y,
-                .width  = size.x,
-                .height = size.y
+            .y = position.y,
+            .width  = size.x,
+            .height = size.y
         };
     }
 
@@ -19,14 +19,23 @@ namespace gui {
 
             ClearBackground(BLANK);
             for (auto& item : items) {
-                item->position.x = xOffset;
-                item->position.y = yOffset;
-                item->draw();
+                (*item).position.x = xOffset;
+                (*item).position.y = yOffset;
+
+                if ((*item).size.x == 0) {
+                    (*item).size.x = size.x;
+                }
+
+                if ((*item).size.y == 0) {
+                    (*item).size.y = size.y;
+                }
+
+                (*item).draw();
 
                 if (direction == flex::COLUMN) {
-                    yOffset += item->size.y + gap.y;
+                    yOffset += (*item).size.y + gap.y;
                 } else if (direction == flex::ROW) {
-                    xOffset += item->size.x + gap.x;
+                    xOffset += (*item).size.x + gap.x;
                 }
             }
         }
@@ -34,18 +43,20 @@ namespace gui {
     }
 
     auto flexbox::update() noexcept -> void {
+        bool childHasChanged = false;
         for (auto& item : items) {
-            item->update();
-            if (item->hasChanged) {
-                hasChanged = true;
+            (*item).hasChanged |= hasChanged;
+            (*item).update();
+            if ((*item).hasChanged) {
+                childHasChanged = true;
             }
         }
 
-        if (hasChanged) {
+        if (childHasChanged) {
             load_texture();
         }
 
-        hasChanged = false;
+        hasChanged = childHasChanged;
     }
 
     auto flexbox::draw() const noexcept -> void {

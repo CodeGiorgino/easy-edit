@@ -1,14 +1,12 @@
-#include "enviroment.hh"
-#include "gui_button.hh"
-#include "gui_flexbox.hh"
+#include "gui.hh"
 #include "raylib.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <print>
 #include <ranges>
 #include <set>
-#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -34,61 +32,77 @@ auto sorted_directory_entries(fs::path folderpath) -> std::vector<fs::directory_
 int main(void)
 {
     // TODO: move to config files
+    // TODO: dimensions relative to font size
     constexpr auto monitorSize       = (Vector2) { 2560, 1440 };
     constexpr auto windowSizeDefault = (Vector2) { 1920, 1080 };
-    constexpr auto paddingDefault = 10;
-    constexpr auto sidebarWidth   = 200;
     
     InitWindow(windowSizeDefault.x, windowSizeDefault.y, "EasyEdit");
     SetWindowPosition(
             monitorSize.x * 0.5 - windowSizeDefault.x * 0.5,
             monitorSize.y * 0.5 - windowSizeDefault.y * 0.5);
 
-    enviroment env;
+    fs::path editorFolder(fs::current_path());
+    gui::color_palette palette;
+    auto font = LoadFontEx(
+            "./assets/fonts/JetBrainsMono-Regular.ttf", 
+            18, NULL, 0);
 
-    gui::flexbox sidebar;
-    sidebar.position = (Vector2) { paddingDefault, paddingDefault };
-    sidebar.size     = (Vector2) { sidebarWidth, -1 };
-    sidebar.gap      = (Vector2) { paddingDefault, paddingDefault };
+    gui::flexbox content;
+    content.position = (Vector2) { 10, 10 };
+    content.gap      = (Vector2) { 0, 10 };
 
-    const auto sortedEntries = sorted_directory_entries(fs::path("."));
+    // TODO: define a constructor with all default values for easier initialisation
+    gui::label pathLabel;
+    pathLabel.text    = editorFolder.string();
+    pathLabel.palette = palette;
+
+    gui::flexbox fileList;
+    fileList.size = (Vector2) { 300, 0 };
+    fileList.gap  = (Vector2) { 0, 5 };
+
+    const auto sortedEntries = sorted_directory_entries(editorFolder);
     for (const auto& entry : sortedEntries) {
         gui::button btn;
-        btn.size    = (Vector2) { sidebarWidth, 25 };
+        btn.size    = (Vector2) { 0, 25 };
         btn.padding = (Vector2) { 5, 5 };
-        btn.font    = std::make_shared<Font>(env.font());
+        btn.font    = std::make_shared<Font>(font);
         btn.label   = entry.path().filename();
+        btn.palette = palette;
 
         if (entry.is_directory()) {
             btn.palette.fg0 = (Color) { 0xd6, 0x5d, 0x0e, 0xff };
         }
 
-        sidebar.items.push_back(std::make_unique<gui::button>(btn));
+        fileList.items.push_back(std::make_shared<gui::button>(btn));
     }
+
+    content.items = {
+        std::make_shared<gui::label>(pathLabel),
+        std::make_shared<gui::flexbox>(fileList)
+    };
 
     while (!WindowShouldClose())
     {
         BeginDrawing();
         {
-            ClearBackground(env.palette().bg0);
+            ClearBackground(palette.bg0);
 
-            const auto width  = GetScreenWidth();
-            const auto height = GetScreenHeight();
-            const auto sidebarHeight = 
-                static_cast<float>(height - paddingDefault * 2);
+            const auto contentHeight = 
+                static_cast<float>(GetScreenHeight() - 45);
 
-            if (sidebarHeight != sidebar.size.y) {
-                sidebar.size.y = sidebarHeight;
-                sidebar.hasChanged = true;
+            if (contentHeight != content.size.y) {
+                content.size.y = contentHeight;
+                content.hasChanged = true;
             }
 
-            sidebar.draw();
-            sidebar.update();
+            content.draw();
+            content.update();
         }
         EndDrawing();
     }
 
     CloseWindow();
+    UnloadFont(font);
 
     return 0;
 }

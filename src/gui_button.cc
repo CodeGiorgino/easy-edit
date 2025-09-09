@@ -1,4 +1,4 @@
-#include "gui_button.hh"
+#include "gui.hh"
 
 namespace gui {
     auto button::bounds() const noexcept -> Rectangle {
