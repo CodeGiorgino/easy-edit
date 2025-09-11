@@ -1,8 +1,9 @@
 #pragma once
 #include "raylib.h"
 
-#include <string>
+#include <functional>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace gui {
@@ -58,20 +59,25 @@ namespace gui {
 
     class button : public component {
         public:
+            typedef std::function<void(void)> event;
+
             struct args {
                 Vector2 position;
                 Vector2 size;
                 color_palette palette;
+                Vector2 padding;
                 std::shared_ptr<Font> font;
                 std::string label;
                 bool isFocused;
+                event on_click;
             };
 
             color_palette palette;
             Vector2 padding;
             std::shared_ptr<Font> font;
             std::string label;
-            bool isFocused = false;
+            bool isFocused;
+            event on_click;
 
             button(args buttonArgs = {
                     .position   = Vector2 { 0, 0 },
@@ -80,11 +86,13 @@ namespace gui {
                     .font       = std::make_shared<Font>(Font {}),
                     .label      = {},
                     .isFocused  = false,
+                    .on_click   = {},
                     });
 
             auto bounds() const noexcept -> Rectangle;
             auto update()       noexcept -> void;
             auto draw()   const noexcept -> void;
+
     };
 
     class label : public component {

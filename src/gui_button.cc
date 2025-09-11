@@ -3,9 +3,11 @@
 namespace gui {
     button::button(button::args buttonArgs) :
         palette(buttonArgs.palette),
+        padding(buttonArgs.padding),
         font(buttonArgs.font),
         label(buttonArgs.label),
-        isFocused(buttonArgs.isFocused) {
+        isFocused(buttonArgs.isFocused),
+        on_click(buttonArgs.on_click) {
             position   = buttonArgs.position;
             size       = buttonArgs.size;
         }
@@ -23,6 +25,12 @@ namespace gui {
         isFocused = CheckCollisionPointRec(
                 GetMousePosition(),
                 bounds());
+
+        if (isFocused 
+                && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)
+                && on_click) {
+            on_click();
+        }
     }
 
     auto button::draw() const noexcept -> void {
