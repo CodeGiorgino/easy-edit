@@ -64,9 +64,24 @@ int main(void)
         (*titleLabel).text = std::format(
                 "Folder: {:?}", 
                 folderpath.string());
-        (*filesContainer).items = {};
 
-        constexpr auto accentColor = Color { 0xd6, 0x5d, 0x0e, 0xff };
+        constexpr auto accentPalette = gui::color_palette {
+            .fg0 = Color { 0xd6, 0x5d, 0x0e, 0xff }
+        };
+
+        (*filesContainer).items = {
+            std::make_shared<gui::button>(
+                    gui::button::args {
+                    .size    = Vector2 { (*filesContainer).size.x, 25 },
+                    .palette = accentPalette,
+                    .padding = Vector2 { 5, 5 },
+                    .font    = font,
+                    .label   = "..",
+                    .on_click = [&, folderpath]() {
+                        generate_file_list(folderpath.parent_path());
+                    }})
+        };
+
         const auto sortedEntries = sorted_directory_entries(folderpath);
         for (const auto& entry : sortedEntries) {
             gui::button btn(gui::button::args {
@@ -78,7 +93,7 @@ int main(void)
                     });
 
             if (entry.is_directory()) {
-                btn.palette.fg0 = accentColor;
+                btn.palette = accentPalette;
                 btn.on_click = [&, entry]() {
                     generate_file_list(entry.path());
                 };
