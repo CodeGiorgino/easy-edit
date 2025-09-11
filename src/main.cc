@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <format>
 #include <iostream>
 #include <print>
 #include <ranges>
@@ -33,7 +34,7 @@ int main(void)
 {
     // TODO: move to config files
     // TODO: dimensions relative to font size
-    constexpr auto windowSizeDefault = (Vector2) { 1920, 1080 };
+    constexpr auto windowSizeDefault = Vector2 { 1920, 1080 };
     
     InitWindow(windowSizeDefault.x, windowSizeDefault.y, "EasyEdit");
     SetWindowPosition(
@@ -47,45 +48,49 @@ int main(void)
                 "./assets/fonts/JetBrainsMono-Regular.ttf", 
                 18, NULL, 0));
 
-    gui::flexbox main;
-    main.padding = (Vector2) { 10, 10 };
-    main.gap     = (Vector2) { 0, 5 };
-
-    gui::label pathLabel;
-    pathLabel.font    = font; 
-    pathLabel.size    = (Vector2) { 0, 30 };
-    pathLabel.text    = editorFolder.string();
-    pathLabel.palette = palette;
-
-    gui::flexbox content;
-    content.direction = gui::flexbox::flex::ROW;
-    content.gap       = (Vector2) { 0, 10 };
-
     gui::flexbox filelist;
-    filelist.size = (Vector2) { 300, 0 };
-    filelist.gap  = (Vector2) { 0, 5 };
+    filelist.size = Vector2 { 300, 0 };
+    filelist.gap  = Vector2 { 0, 5 };
 
     const auto sortedEntries = sorted_directory_entries(editorFolder);
     for (const auto& entry : sortedEntries) {
         gui::button btn;
-        btn.size    = (Vector2) { filelist.size.x, 25 };
-        btn.padding = (Vector2) { 5, 5 };
+        btn.size    = Vector2 { filelist.size.x, 25 };
+        btn.padding = Vector2 { 5, 5 };
         btn.font    = font;
         btn.label   = entry.path().filename();
         btn.palette = palette;
 
         if (entry.is_directory()) {
-            btn.palette.fg0 = (Color) { 0xd6, 0x5d, 0x0e, 0xff };
+            btn.palette.fg0 = Color { 0xd6, 0x5d, 0x0e, 0xff };
         }
 
         filelist.items.push_back(std::make_shared<gui::button>(btn));
     }
 
-    content.items = { std::make_shared<gui::flexbox>(filelist) };
-    main.items = {
-        std::make_shared<gui::label>(pathLabel),
-        std::make_shared<gui::flexbox>(content),
-    };
+    auto main = gui::flexbox(
+            gui::flexbox::args {
+            .padding = Vector2 { 10, 10 },
+            .gap     = Vector2 { 0, 5 },
+            .items = {
+            std::make_shared<gui::label>(
+                    gui::label::args {
+                    .size = Vector2 { 0, 30 },
+                    .palette = palette,
+                    .font    = font,
+                    .text    = std::format(
+                            "Folder: {:?}", 
+                            editorFolder.string())
+                    }),
+            std::make_shared<gui::flexbox>(
+                    gui::flexbox::args {
+                    .direction = gui::flexbox::flex::ROW,
+                    .gap       = Vector2 { 0, 10 },
+                    .items = {
+                    std::make_shared<gui::flexbox>(filelist),
+                    // TODO: file content
+                    }}),
+            }});
 
     SetTargetFPS(60);
     while (!WindowShouldClose())
@@ -101,15 +106,12 @@ int main(void)
 
             if (mainWidth != main.size.x) {
                 main.size.x = mainWidth;
-                content.size.x = mainWidth - main.padding.x;
-                main.hasChanged  = true;
+                main.hasChanged = true;
             }
 
             if (mainHeight != main.size.y) {
                 main.size.y = mainHeight;
-                content.size.y = mainHeight - main.padding.y;
-                filelist.size.y = content.size.y - 40;
-                main.hasChanged  = true;
+                main.hasChanged = true;
             }
 
             main.draw();

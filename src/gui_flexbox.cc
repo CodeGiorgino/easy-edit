@@ -1,6 +1,16 @@
 #include "gui.hh"
 
 namespace gui {
+    flexbox::flexbox(flexbox::args flexboxArgs) :
+        direction(flexboxArgs.direction),
+        padding(flexboxArgs.padding),
+        gap(flexboxArgs.gap),
+        items(flexboxArgs.items) {
+            position   = flexboxArgs.position;
+            size       = flexboxArgs.size;
+            hasChanged = flexboxArgs.hasChanged;
+        }
+
     auto flexbox::bounds() const noexcept -> Rectangle {
         return (Rectangle) {
             .x = position.x,

@@ -1,6 +1,16 @@
 #include "gui.hh"
 
 namespace gui {
+    button::button(button::args buttonArgs) :
+        palette(buttonArgs.palette),
+        font(buttonArgs.font),
+        label(buttonArgs.label),
+        isFocused(buttonArgs.isFocused) {
+            position   = buttonArgs.position;
+            size       = buttonArgs.size;
+            hasChanged = buttonArgs.hasChanged;
+        }
+
     auto button::bounds() const noexcept -> Rectangle {
         return (Rectangle) {
             .x = position.x,

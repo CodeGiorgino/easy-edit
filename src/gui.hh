@@ -7,13 +7,12 @@
 
 namespace gui {
     struct color_palette final {
-        Color bg0 = (Color) { 0x1d, 0x20, 0x21, 0xff };
-        Color bg1 = (Color) { 0x3c, 0x38, 0x36, 0xff };
-        Color bg2 = (Color) { 0x50, 0x49, 0x45, 0xff };
-        Color fg0 = (Color) { 0xfb, 0xf1, 0xc7, 0xff };
+        Color bg0 = Color { 0x1d, 0x20, 0x21, 0xff };
+        Color bg1 = Color { 0x3c, 0x38, 0x36, 0xff };
+        Color bg2 = Color { 0x50, 0x49, 0x45, 0xff };
+        Color fg0 = Color { 0xfb, 0xf1, 0xc7, 0xff };
     };
 
-    // TODO: define a constructor with all default values for easier initialisation
     class component {
         public:
             Vector2 position = {};
@@ -29,11 +28,31 @@ namespace gui {
         public:
             enum class flex { COLUMN, ROW };
 
-            flex direction  = flex::COLUMN;
-            Vector2 padding = {};
-            Vector2 gap     = {};
+            struct args {
+                Vector2 position;
+                Vector2 size;
+                bool hasChanged;
+                flex direction;
+                Vector2 padding;
+                Vector2 gap;
+                std::vector<std::shared_ptr<component>> items;
+            };
+
+            flex direction;
+            Vector2 padding;
+            Vector2 gap;
 
             std::vector<std::shared_ptr<component>> items = {};
+
+            flexbox(args flexboxArgs = args {
+                    .position   = Vector2 { 0, 0 },
+                    .size       = Vector2 { 0, 0 },
+                    .hasChanged = false,
+                    .direction  = flex::COLUMN,
+                    .padding    = {},
+                    .gap        = {},
+                    .items      = {},
+                    });
 
             auto bounds() const noexcept -> Rectangle;
             auto update()       noexcept -> void;
@@ -42,13 +61,32 @@ namespace gui {
 
     class button : public component {
         public:
-            color_palette palette = {};
-            Vector2 padding       = {};
+            struct args {
+                Vector2 position;
+                Vector2 size;
+                bool hasChanged;
+                color_palette palette;
+                std::shared_ptr<Font> font;
+                std::string label;
+                bool isFocused;
+            };
 
-            std::shared_ptr<Font> font = std::make_shared<Font>(Font {});
-            std::string label = {};
+            color_palette palette;
+            Vector2 padding;
+            std::shared_ptr<Font> font;
+            std::string label;
 
             bool isFocused = false;
+
+            button(args buttonArgs = {
+                    .position   = Vector2 { 0, 0 },
+                    .size       = Vector2 { 0, 0 },
+                    .hasChanged = false,
+                    .palette    = {},
+                    .font       = std::make_shared<Font>(Font {}),
+                    .label      = {},
+                    .isFocused  = false,
+                    });
 
             auto bounds() const noexcept -> Rectangle;
             auto update()       noexcept -> void;
@@ -57,10 +95,27 @@ namespace gui {
 
     class label : public component {
         public:
-            color_palette palette = {};
+            struct args {
+                Vector2 position;
+                Vector2 size;
+                bool hasChanged;
+                color_palette palette;
+                std::shared_ptr<Font> font;
+                std::string text;
+            };
 
-            std::shared_ptr<Font> font = std::make_shared<Font>(Font {});
-            std::string text {};
+            color_palette palette;
+            std::shared_ptr<Font> font;
+            std::string text;
+
+            label(args labelArgs = {
+                    .position   = Vector2 { 0, 0 },
+                    .size       = Vector2 { 0, 0 },
+                    .hasChanged = false,
+                    .palette    = {},
+                    .font       = std::make_shared<Font>(Font {}),
+                    .text       = {},
+                    });
 
             auto bounds() const noexcept -> Rectangle;
             auto update()       noexcept -> void;
