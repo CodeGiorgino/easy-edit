@@ -13,6 +13,7 @@ namespace gui {
         Color fg0 = (Color) { 0xfb, 0xf1, 0xc7, 0xff };
     };
 
+    // TODO: define a constructor with all default values for easier initialisation
     class component {
         public:
             Vector2 position = {};
@@ -28,24 +29,21 @@ namespace gui {
         public:
             enum class flex { COLUMN, ROW };
 
-            flex direction = flex::COLUMN;
-            Vector2 gap = {};
+            flex direction  = flex::COLUMN;
+            Vector2 padding = {};
+            Vector2 gap     = {};
 
             std::vector<std::shared_ptr<component>> items = {};
 
             auto bounds() const noexcept -> Rectangle;
-            auto load_texture() noexcept -> void;
             auto update()       noexcept -> void;
             auto draw()   const noexcept -> void;
-
-        private:
-            RenderTexture2D _targetTexture = {};
     };
 
     class button : public component {
         public:
             color_palette palette = {};
-            Vector2 padding = {};
+            Vector2 padding       = {};
 
             std::shared_ptr<Font> font = std::make_shared<Font>(Font {});
             std::string label = {};
@@ -60,6 +58,7 @@ namespace gui {
     class label : public component {
         public:
             color_palette palette = {};
+
             std::shared_ptr<Font> font = std::make_shared<Font>(Font {});
             std::string text {};
 

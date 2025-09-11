@@ -12,14 +12,11 @@ namespace gui {
 
     auto label::update() noexcept -> void { 
         hasChanged = false;
-        return;
     }
 
-
     auto label::draw() const noexcept -> void {
-        DrawTextEx(*font, text.c_str(), (Vector2) {
-                    position.x,
-                    position.y
-                }, font->baseSize, 1, palette.fg0);
+            TraceLog(LOG_INFO, "label size: (%f, %f)", size.x, size.y);
+        DrawTextEx(*font, text.c_str(), position, 
+                font->baseSize, 1, palette.fg0);
     }
 } // namespace gui
