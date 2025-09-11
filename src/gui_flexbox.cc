@@ -8,7 +8,6 @@ namespace gui {
         items(flexboxArgs.items) {
             position   = flexboxArgs.position;
             size       = flexboxArgs.size;
-            hasChanged = flexboxArgs.hasChanged;
         }
 
     auto flexbox::bounds() const noexcept -> Rectangle {
@@ -21,7 +20,6 @@ namespace gui {
     }
 
     auto flexbox::update() noexcept -> void {
-        bool childHasChanged = false;
         auto xOffset = position.x + padding.x;
         auto yOffset = position.y + padding.y;
 
@@ -35,15 +33,8 @@ namespace gui {
                 xOffset += (*item).size.x + gap.x;
             }
 
-            (*item).hasChanged |= hasChanged;
             (*item).update();
-
-            if ((*item).hasChanged) {
-                childHasChanged = true;
-            }
         }
-
-        hasChanged = childHasChanged;
     }
 
     auto flexbox::draw() const noexcept -> void {

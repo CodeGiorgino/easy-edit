@@ -8,7 +8,6 @@ namespace gui {
         isFocused(buttonArgs.isFocused) {
             position   = buttonArgs.position;
             size       = buttonArgs.size;
-            hasChanged = buttonArgs.hasChanged;
         }
 
     auto button::bounds() const noexcept -> Rectangle {
@@ -21,11 +20,9 @@ namespace gui {
     }
 
     auto button::update() noexcept -> void {
-        const auto isMouseColliding = 
-            CheckCollisionPointRec(GetMousePosition(), bounds());
-
-        hasChanged = isMouseColliding != isFocused;
-        isFocused  = isMouseColliding;
+        isFocused = CheckCollisionPointRec(
+                GetMousePosition(),
+                bounds());
     }
 
     auto button::draw() const noexcept -> void {

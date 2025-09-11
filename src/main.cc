@@ -106,12 +106,10 @@ int main(void)
 
             if (mainWidth != main.size.x) {
                 main.size.x = mainWidth;
-                main.hasChanged = true;
             }
 
             if (mainHeight != main.size.y) {
                 main.size.y = mainHeight;
-                main.hasChanged = true;
             }
 
             main.draw();

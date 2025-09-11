@@ -17,7 +17,6 @@ namespace gui {
         public:
             Vector2 position = {};
             Vector2 size     = {};
-            bool hasChanged  = false;
 
             virtual auto bounds() const noexcept -> Rectangle = 0;
             virtual auto update()       noexcept -> void      = 0;
@@ -31,7 +30,6 @@ namespace gui {
             struct args {
                 Vector2 position;
                 Vector2 size;
-                bool hasChanged;
                 flex direction;
                 Vector2 padding;
                 Vector2 gap;
@@ -47,7 +45,6 @@ namespace gui {
             flexbox(args flexboxArgs = args {
                     .position   = Vector2 { 0, 0 },
                     .size       = Vector2 { 0, 0 },
-                    .hasChanged = false,
                     .direction  = flex::COLUMN,
                     .padding    = {},
                     .gap        = {},
@@ -64,7 +61,6 @@ namespace gui {
             struct args {
                 Vector2 position;
                 Vector2 size;
-                bool hasChanged;
                 color_palette palette;
                 std::shared_ptr<Font> font;
                 std::string label;
@@ -75,13 +71,11 @@ namespace gui {
             Vector2 padding;
             std::shared_ptr<Font> font;
             std::string label;
-
             bool isFocused = false;
 
             button(args buttonArgs = {
                     .position   = Vector2 { 0, 0 },
                     .size       = Vector2 { 0, 0 },
-                    .hasChanged = false,
                     .palette    = {},
                     .font       = std::make_shared<Font>(Font {}),
                     .label      = {},
@@ -98,7 +92,6 @@ namespace gui {
             struct args {
                 Vector2 position;
                 Vector2 size;
-                bool hasChanged;
                 color_palette palette;
                 std::shared_ptr<Font> font;
                 std::string text;
@@ -111,7 +104,6 @@ namespace gui {
             label(args labelArgs = {
                     .position   = Vector2 { 0, 0 },
                     .size       = Vector2 { 0, 0 },
-                    .hasChanged = false,
                     .palette    = {},
                     .font       = std::make_shared<Font>(Font {}),
                     .text       = {},

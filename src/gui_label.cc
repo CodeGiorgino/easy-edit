@@ -7,7 +7,6 @@ namespace gui {
         text(labelArgs.text) {
             position   = labelArgs.position;
             size       = labelArgs.size;
-            hasChanged = labelArgs.hasChanged;
         }
 
     auto label::bounds() const noexcept -> Rectangle {
@@ -20,7 +19,7 @@ namespace gui {
     }
 
     auto label::update() noexcept -> void { 
-        hasChanged = false;
+        return;
     }
 
     auto label::draw() const noexcept -> void {
