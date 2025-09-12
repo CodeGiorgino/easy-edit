@@ -23,23 +23,23 @@ namespace gui {
         auto xOffset = position.x + padding.x;
         auto yOffset = position.y + padding.y;
 
-        for (auto& item : items) {
-            (*item).position.x = xOffset;
-            (*item).position.y = yOffset;
+        for (auto& pitem : items) {
+            (*pitem).position.x = xOffset;
+            (*pitem).position.y = yOffset;
 
             if (direction == flex::COLUMN) {
-                yOffset += (*item).size.y + gap.y;
+                yOffset += (*pitem).size.y + gap.y;
             } else if (direction == flex::ROW) {
-                xOffset += (*item).size.x + gap.x;
+                xOffset += (*pitem).size.x + gap.x;
             }
 
-            (*item).update();
+            (*pitem).update();
         }
     }
 
     auto flexbox::draw() const noexcept -> void {
-        for (auto& item : items) {
-            (*item).draw();
+        for (auto& pitem : items) {
+            (*pitem).draw();
         }
     }
 } // namespace gui

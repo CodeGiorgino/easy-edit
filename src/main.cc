@@ -47,61 +47,53 @@ int main(void)
                 "./assets/fonts/JetBrainsMono-Regular.ttf", 
                 18, NULL, 0));
 
-    auto titleLabel = std::make_shared<gui::label>(
-            gui::label::args {
-            .size    = Vector2 { 0, 30 },
-            .palette = palette,
-            .font    = font,
-            });
-
     auto filesContainer = std::make_shared<gui::flexbox>(
             gui::flexbox::args {
             .size = Vector2 { 300, 0 },
             .gap  = Vector2 { 0, 5 },
             });
 
-    const std::function<void(fs::path)> generate_file_list = [&](fs::path folderpath) {
-        (*titleLabel).text = std::format(
-                "Folder: {:?}", 
-                folderpath.string());
+    auto pfolderpath = std::make_shared<std::string>();
+    const std::function<void(fs::path)> generate_file_list = 
+        [&](fs::path folderpath) {
+            *pfolderpath = std::format("Folder: {:?}", folderpath.string());
+            constexpr auto accentPalette = gui::color_palette {
+                .fg0 = Color { 0xd6, 0x5d, 0x0e, 0xff }
+            };
 
-        constexpr auto accentPalette = gui::color_palette {
-            .fg0 = Color { 0xd6, 0x5d, 0x0e, 0xff }
-        };
+            (*filesContainer).items = {
+                std::make_shared<gui::button>(
+                        gui::button::args {
+                        .size    = Vector2 { (*filesContainer).size.x, 25 },
+                        .palette = accentPalette,
+                        .padding = Vector2 { 5, 5 },
+                        .font    = font,
+                        .label   = "..",
+                        .on_click = [&, folderpath]() {
+                            generate_file_list(folderpath.parent_path());
+                        }})
+            };
 
-        (*filesContainer).items = {
-            std::make_shared<gui::button>(
-                    gui::button::args {
-                    .size    = Vector2 { (*filesContainer).size.x, 25 },
-                    .palette = accentPalette,
-                    .padding = Vector2 { 5, 5 },
-                    .font    = font,
-                    .label   = "..",
-                    .on_click = [&, folderpath]() {
-                        generate_file_list(folderpath.parent_path());
-                    }})
-        };
+            const auto sortedEntries = sorted_directory_entries(folderpath);
+            for (const auto& entry : sortedEntries) {
+                gui::button btn(gui::button::args {
+                        .size    = Vector2 { (*filesContainer).size.x, 25 },
+                        .palette = palette,
+                        .padding = Vector2 { 5, 5 },
+                        .font    = font,
+                        .label   = entry.path().filename(),
+                        });
 
-        const auto sortedEntries = sorted_directory_entries(folderpath);
-        for (const auto& entry : sortedEntries) {
-            gui::button btn(gui::button::args {
-                    .size    = Vector2 { (*filesContainer).size.x, 25 },
-                    .palette = palette,
-                    .padding = Vector2 { 5, 5 },
-                    .font    = font,
-                    .label   = entry.path().filename(),
-                    });
+                if (entry.is_directory()) {
+                    btn.palette = accentPalette;
+                    btn.on_click = [&, entry]() {
+                        generate_file_list(entry.path());
+                    };
+                }
 
-            if (entry.is_directory()) {
-                btn.palette = accentPalette;
-                btn.on_click = [&, entry]() {
-                    generate_file_list(entry.path());
-                };
+                (*filesContainer).items.push_back(std::make_shared<gui::button>(btn));
             }
-
-            (*filesContainer).items.push_back(std::make_shared<gui::button>(btn));
-        }
-    };
+        };
 
     generate_file_list(fs::current_path());
 
@@ -110,7 +102,13 @@ int main(void)
             .padding = Vector2 { 10, 10 },
             .gap     = Vector2 { 0, 5 },
             .items = {
-            titleLabel,
+            std::make_shared<gui::label>(
+                    gui::label::args {
+                    .size    = Vector2 { 0, 30 },
+                    .palette = palette,
+                    .font    = font,
+                    .text    = pfolderpath,
+                    }),
             std::make_shared<gui::flexbox>(
                     gui::flexbox::args {
                     .direction = gui::flexbox::flex::ROW,

@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace gui {
@@ -102,12 +103,12 @@ namespace gui {
                 Vector2 size;
                 color_palette palette;
                 std::shared_ptr<Font> font;
-                std::string text;
+                std::variant<std::string, std::shared_ptr<std::string>> text;
             };
 
             color_palette palette;
             std::shared_ptr<Font> font;
-            std::string text;
+            std::variant<std::string, std::shared_ptr<std::string>> text;
 
             label(args labelArgs = {
                     .position   = Vector2 { 0, 0 },
