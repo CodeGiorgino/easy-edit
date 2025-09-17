@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <iostream>
 #include <print>
 #include <ranges>
@@ -53,10 +54,26 @@ int main(void)
             .gap  = Vector2 { 0, 5 },
             });
 
-    auto pfolderpath = std::make_shared<std::string>();
+    auto ptitle = std::make_shared<std::string>(
+            fs::current_path().string());
+    auto peditorContent = std::make_shared<std::string>();
+
+    const auto set_editor_content =
+        [&](fs::path filepath) -> void {
+            std::ifstream stream(filepath);
+            if (!stream) {
+                // TODO: create file or report error (ex. already a directory)
+                return;
+            }
+
+            *peditorContent = std::string(
+                    std::istreambuf_iterator<char>(stream),
+                    std::istreambuf_iterator<char>());
+            std::println(std::cerr, "[d] fileContent: {:?}", *peditorContent);
+        };
+
     const std::function<void(fs::path)> generate_file_list = 
-        [&](fs::path folderpath) {
-            *pfolderpath = std::format("Folder: {:?}", folderpath.string());
+        [&](fs::path folderpath) -> void {
             constexpr auto accentPalette = gui::color_palette {
                 .fg0 = Color { 0xd6, 0x5d, 0x0e, 0xff }
             };
@@ -70,6 +87,7 @@ int main(void)
                         .font    = font,
                         .label   = "..",
                         .on_click = [&, folderpath]() {
+                            *ptitle = folderpath.parent_path().string();
                             generate_file_list(folderpath.parent_path());
                         }})
             };
@@ -87,7 +105,13 @@ int main(void)
                 if (entry.is_directory()) {
                     btn.palette = accentPalette;
                     btn.on_click = [&, entry]() {
+                        *ptitle = entry.path().string();
                         generate_file_list(entry.path());
+                    };
+                } else if (entry.is_regular_file()) {
+                    btn.on_click = [&, entry]() {
+                        *ptitle = entry.path().string();
+                        set_editor_content(entry.path());
                     };
                 }
 
@@ -102,20 +126,28 @@ int main(void)
             .padding = Vector2 { 10, 10 },
             .gap     = Vector2 { 0, 5 },
             .items = {
+            // TODO: extract component
             std::make_shared<gui::label>(
                     gui::label::args {
                     .size    = Vector2 { 0, 30 },
                     .palette = palette,
+                    .padding = Vector2 { 5, 5 },
                     .font    = font,
-                    .text    = pfolderpath,
+                    .text    = ptitle,
                     }),
             std::make_shared<gui::flexbox>(
                     gui::flexbox::args {
                     .direction = gui::flexbox::flex::ROW,
-                    .gap       = Vector2 { 0, 10 },
+                    .gap       = Vector2 { 10, 0 },
                     .items = {
                     filesContainer,
-                    // TODO: editor
+                    std::make_shared<gui::label>(
+                            gui::label::args {
+                            .palette = palette,
+                            .padding = Vector2 { 5, 5 },
+                            .font    = font,
+                            .text    = peditorContent,
+                            }),
                     }}),
             }});
 

@@ -36,7 +36,6 @@ namespace gui {
     auto button::draw() const noexcept -> void {
         DrawRectangleV(position, size, isFocused 
                 ? palette.bg2 : palette.bg1);
-
         DrawTextEx(*font, label.c_str(), (Vector2) {
                     position.x + padding.x,
                     position.y + padding.y

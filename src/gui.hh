@@ -102,11 +102,13 @@ namespace gui {
                 Vector2 position;
                 Vector2 size;
                 color_palette palette;
+                Vector2 padding;
                 std::shared_ptr<Font> font;
                 std::variant<std::string, std::shared_ptr<std::string>> text;
             };
 
             color_palette palette;
+            Vector2 padding;
             std::shared_ptr<Font> font;
             std::variant<std::string, std::shared_ptr<std::string>> text;
 
@@ -114,6 +116,7 @@ namespace gui {
                     .position   = Vector2 { 0, 0 },
                     .size       = Vector2 { 0, 0 },
                     .palette    = {},
+                    .padding    = Vector2 { 0, 0 },
                     .font       = std::make_shared<Font>(Font {}),
                     .text       = {},
                     });

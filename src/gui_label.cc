@@ -3,6 +3,7 @@
 namespace gui {
     label::label(label::args labelArgs) :
         palette(labelArgs.palette),
+        padding(labelArgs.padding),
         font(labelArgs.font),
         text(labelArgs.text) {
             position   = labelArgs.position;
@@ -30,7 +31,13 @@ namespace gui {
             value = *std::get<std::shared_ptr<std::string>>(text);
         }
 
-        DrawTextEx(*font, value.c_str(), 
-                position, font->baseSize, 1, palette.fg0);
+        const auto textSize = MeasureTextEx(
+                *font, value.c_str(), (*font).baseSize, 1);
+
+        DrawRectangleV(position, size, palette.bg1);
+        DrawTextEx(*font, value.c_str(), Vector2 {
+                    position.x + padding.x,
+                    position.y + padding.y
+                }, (*font).baseSize, 1, palette.fg0);
     }
 } // namespace gui
