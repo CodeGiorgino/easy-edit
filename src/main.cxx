@@ -35,9 +35,9 @@ int main(void)
 {
     // TODO: move to config files
     // TODO: dimensions relative to font size
-    constexpr auto windowSizeDefault = Vector2 { 1920, 1080 };
+    constexpr auto windowSizeDefault = Vector2 { 1280, 720 };
     
-    InitWindow(windowSizeDefault.x, windowSizeDefault.y, "EasyEdit");
+    InitWindow(windowSizeDefault.x, windowSizeDefault.y, "easyedit");
     SetWindowPosition(
             GetMonitorWidth(0)  * 0.5 - windowSizeDefault.x * 0.5, 
             GetMonitorHeight(0) * 0.5 - windowSizeDefault.y * 0.5);
