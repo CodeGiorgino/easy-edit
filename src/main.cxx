@@ -1,4 +1,4 @@
-#include "gui.hh"
+#include "gui.hxx"
 #include "raylib.h"
 
 #include <algorithm>

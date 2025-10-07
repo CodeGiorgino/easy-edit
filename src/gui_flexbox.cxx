@@ -1,4 +1,4 @@
-#include "gui.hh"
+#include "gui.hxx"
 
 namespace gui {
     flexbox::flexbox(flexbox::args flexboxArgs) :
