@@ -29,8 +29,10 @@ namespace gui {
 
             if (direction == flex::COLUMN) {
                 yOffset += (*pitem).size.y + gap.y;
+                (*pitem).size.x = size.x - padding.x * 2;
             } else if (direction == flex::ROW) {
                 xOffset += (*pitem).size.x + gap.x;
+                (*pitem).size.y = size.y - padding.y * 2;
             }
 
             (*pitem).update();
@@ -38,6 +40,7 @@ namespace gui {
     }
 
     auto flexbox::draw() const noexcept -> void {
+        DrawRectangleLines(position.x, position.y, size.x, size.y, RED);
         for (auto& pitem : items) {
             (*pitem).draw();
         }

@@ -39,8 +39,8 @@ int main(void)
     
     InitWindow(windowSizeDefault.x, windowSizeDefault.y, "easyedit");
     SetWindowPosition(
-            GetMonitorWidth(0)  * 0.5 - windowSizeDefault.x * 0.5, 
-            GetMonitorHeight(0) * 0.5 - windowSizeDefault.y * 0.5);
+            GetScreenWidth()  * 0.5 - windowSizeDefault.x * 0.5, 
+            GetScreenHeight() * 0.5 - windowSizeDefault.y * 0.5);
 
     gui::color_palette palette;
     auto font = std::make_shared<Font>(
@@ -48,15 +48,21 @@ int main(void)
                 "./assets/fonts/JetBrainsMono-Regular.ttf", 
                 18, NULL, 0));
 
-    auto filesContainer = std::make_shared<gui::flexbox>(
+    auto pfilesContainer = std::make_shared<gui::flexbox>(
             gui::flexbox::args {
-            .size = Vector2 { 300, 0 },
-            .gap  = Vector2 { 0, 5 },
+            .size    = Vector2 { 300, 0 },
+            .padding = Vector2 { 5, 5 },
+            .gap     = Vector2 { 5, 5 },
             });
 
-    auto ptitle = std::make_shared<std::string>(
+    auto ppathLabel = std::make_shared<std::string>(
             fs::current_path().string());
-    auto peditorContent = std::make_shared<std::string>();
+    auto pcontentLabel = std::make_shared<gui::label>(
+            gui::label::args {
+            .palette = palette,
+            .padding = Vector2 { 5, 5 },
+            .font    = font,
+            });
 
     const auto set_editor_content =
         [&](fs::path filepath) -> void {
@@ -66,10 +72,9 @@ int main(void)
                 return;
             }
 
-            *peditorContent = std::string(
+            (*pcontentLabel).text = std::string(
                     std::istreambuf_iterator<char>(stream),
                     std::istreambuf_iterator<char>());
-            std::println(std::cerr, "[d] fileContent: {:?}", *peditorContent);
         };
 
     const std::function<void(fs::path)> generate_file_list = 
@@ -78,16 +83,16 @@ int main(void)
                 .fg0 = Color { 0xd6, 0x5d, 0x0e, 0xff }
             };
 
-            (*filesContainer).items = {
+            (*pfilesContainer).items = {
                 std::make_shared<gui::button>(
                         gui::button::args {
-                        .size    = Vector2 { (*filesContainer).size.x, 25 },
+                        .size    = Vector2 { (*pfilesContainer).size.x, 25 },
                         .palette = accentPalette,
                         .padding = Vector2 { 5, 5 },
                         .font    = font,
                         .label   = "..",
                         .on_click = [&, folderpath]() {
-                            *ptitle = folderpath.parent_path().string();
+                            *ppathLabel = folderpath.parent_path().string();
                             generate_file_list(folderpath.parent_path());
                         }})
             };
@@ -95,7 +100,7 @@ int main(void)
             const auto sortedEntries = sorted_directory_entries(folderpath);
             for (const auto& entry : sortedEntries) {
                 gui::button btn(gui::button::args {
-                        .size    = Vector2 { (*filesContainer).size.x, 25 },
+                        .size    = Vector2 { (*pfilesContainer).size.x, 25 },
                         .palette = palette,
                         .padding = Vector2 { 5, 5 },
                         .font    = font,
@@ -105,50 +110,48 @@ int main(void)
                 if (entry.is_directory()) {
                     btn.palette = accentPalette;
                     btn.on_click = [&, entry]() {
-                        *ptitle = entry.path().string();
+                        *ppathLabel = entry.path().string();
                         generate_file_list(entry.path());
                     };
                 } else if (entry.is_regular_file()) {
                     btn.on_click = [&, entry]() {
-                        *ptitle = entry.path().string();
+                        *ppathLabel = entry.path().string();
                         set_editor_content(entry.path());
                     };
                 }
 
-                (*filesContainer).items.push_back(std::make_shared<gui::button>(btn));
+                (*pfilesContainer).items.push_back(std::make_shared<gui::button>(btn));
             }
         };
 
     generate_file_list(fs::current_path());
 
+    auto peditorSection = std::make_shared<gui::flexbox>(
+            gui::flexbox::args {
+            .direction = gui::flexbox::flex::ROW,
+            .padding   = Vector2 { 10, 10 },
+            .gap       = Vector2 { 5, 5 },
+            .items = {
+            pfilesContainer,
+            pcontentLabel,
+            }});
+
     auto main = gui::flexbox(
             gui::flexbox::args {
             .padding = Vector2 { 10, 10 },
-            .gap     = Vector2 { 0, 5 },
+            .gap     = Vector2 { 5, 5 },
             .items = {
-            // TODO: extract component
             std::make_shared<gui::label>(
                     gui::label::args {
-                    .size    = Vector2 { 0, 30 },
+                    .size    = Vector2 {
+                    0, static_cast<float>((*font).baseSize + 10)
+                    },
                     .palette = palette,
                     .padding = Vector2 { 5, 5 },
                     .font    = font,
-                    .text    = ptitle,
+                    .text    = ppathLabel,
                     }),
-            std::make_shared<gui::flexbox>(
-                    gui::flexbox::args {
-                    .direction = gui::flexbox::flex::ROW,
-                    .gap       = Vector2 { 10, 0 },
-                    .items = {
-                    filesContainer,
-                    std::make_shared<gui::label>(
-                            gui::label::args {
-                            .palette = palette,
-                            .padding = Vector2 { 5, 5 },
-                            .font    = font,
-                            .text    = peditorContent,
-                            }),
-                    }}),
+            peditorSection
             }});
 
     SetTargetFPS(60);
@@ -158,21 +161,23 @@ int main(void)
         {
             ClearBackground(palette.bg0);
 
-            const auto mainWidth =
-                static_cast<float>(GetScreenWidth() - 20);
-            const auto mainHeight = 
-                static_cast<float>(GetScreenHeight() - 20);
+            main.size = Vector2 {
+                static_cast<float>(GetScreenWidth()),
+                static_cast<float>(GetScreenHeight())
+            };
 
-            if (mainWidth != main.size.x) {
-                main.size.x = mainWidth;
-            }
+            main.update();
 
-            if (mainHeight != main.size.y) {
-                main.size.y = mainHeight;
-            }
+            (*peditorSection).size.y = main.size.y 
+                - main.padding.y * 2 
+                - main.gap.y
+                - (*font).baseSize - 10;
+            (*pcontentLabel).size.x = (*peditorSection).size.x
+                - (*peditorSection).padding.x * 2
+                - (*peditorSection).gap.x
+                - (*pfilesContainer).size.x;
 
             main.draw();
-            main.update();
         }
         EndDrawing();
     }
