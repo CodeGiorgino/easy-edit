@@ -52,15 +52,17 @@ int main(void)
             gui::component_style {
             .size = Vector2 { 300, 0 },
             .gap  = 5,
+            .fullHeight = true,
             });
 
     auto ppathLabel = std::make_shared<std::string>(
             fs::current_path().string());
     auto pcontentLabel = std::make_shared<gui::label>(
             gui::component_style {
-            .palette = palette,
-            .font    = font,
-            .padding = Vector2 { 5, 5 },
+            .palette    = palette,
+            .font       = font,
+            .padding    = Vector2 { 5, 5 },
+            .fullHeight = true,
             });
 
     const auto set_editor_content =
@@ -126,7 +128,10 @@ int main(void)
     generate_file_list(fs::current_path());
 
     auto peditorSection = std::make_shared<gui::flexbox>(
-            gui::component_style { .gap = 5, },
+            gui::component_style {
+            .gap        = 5,
+            .fullWidth  = true,
+            },
             gui::flexbox::flex::ROW,
             gui::flexbox::items_collection { pfilesContainer, pcontentLabel });
 
@@ -143,6 +148,7 @@ int main(void)
                     .font    = font,
                     .size    = Vector2 { 0, static_cast<float>((*font).baseSize + 10) },
                     .padding = Vector2 { 5, 5 },
+                    .fullWidth  = true,
                     },
                     ppathLabel),
             peditorSection

@@ -22,6 +22,8 @@ namespace gui {
         Vector2 size     = {};
         Vector2 padding  = {};
         int gap = 0;
+        bool fullWidth  = false;
+        bool fullHeight = false;
     };
 
     class component {

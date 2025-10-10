@@ -28,10 +28,14 @@ namespace gui {
 
             if (direction == flex::COLUMN) {
                 yOffset += (*pitem).style.size.y + style.gap;
-                (*pitem).style.size.x = style.size.x - style.padding.x * 2;
+                if ((*pitem).style.fullWidth) {
+                    (*pitem).style.size.x = style.size.x - style.padding.x * 2;
+                }
             } else if (direction == flex::ROW) {
                 xOffset += (*pitem).style.size.x + style.gap;
-                (*pitem).style.size.y = style.size.y - style.padding.y * 2;
+                if ((*pitem).style.fullHeight) {
+                    (*pitem).style.size.y = style.size.y - style.padding.y * 2;
+                }
             }
 
             (*pitem).update();
@@ -39,7 +43,11 @@ namespace gui {
     }
 
     auto flexbox::draw() const noexcept -> void {
-        // DrawRectangleLines(position.x, position.y, size.x, size.y, RED);
+        // DrawRectangleLines(style.position.x,
+        //         style.position.y,
+        //         style.size.x,
+        //         style.size.y,
+        //         RED);
         for (auto& pitem : items) {
             (*pitem).draw();
         }
