@@ -1,23 +1,20 @@
 #include "gui.hxx"
 
 namespace gui {
-    button::button(button::args buttonArgs) :
-        palette(buttonArgs.palette),
-        padding(buttonArgs.padding),
-        font(buttonArgs.font),
-        label(buttonArgs.label),
-        isFocused(buttonArgs.isFocused),
-        on_click(buttonArgs.on_click) {
-            position   = buttonArgs.position;
-            size       = buttonArgs.size;
+    button::button(component_style _style,
+            std::string _label,
+            event _on_click) :
+        label(_label),
+        on_click(_on_click) {
+            style = _style;
         }
 
     auto button::bounds() const noexcept -> Rectangle {
         return (Rectangle) {
-            .x = position.x,
-            .y = position.y,
-            .width  = size.x,
-            .height = size.y
+            .x = style.position.x,
+            .y = style.position.y,
+            .width  = style.size.x,
+            .height = style.size.y
         };
     }
 
@@ -34,11 +31,11 @@ namespace gui {
     }
 
     auto button::draw() const noexcept -> void {
-        DrawRectangleV(position, size, isFocused 
-                ? palette.bg2 : palette.bg1);
-        DrawTextEx(*font, label.c_str(), (Vector2) {
-                    position.x + padding.x,
-                    position.y + padding.y
-                }, font->baseSize, 1, palette.fg0);
+        DrawRectangleV(style.position, style.size,
+                isFocused ? style.palette.bg2 : style.palette.bg1);
+        DrawTextEx(*style.font, label.c_str(), Vector2 {
+                    style.position.x + style.padding.x,
+                    style.position.y + style.padding.y
+                }, (*style.font).baseSize, 1, style.palette.fg0);
     }
 } // namespace gui

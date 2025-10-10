@@ -15,10 +15,18 @@ namespace gui {
         Color fg0 = Color { 0xfb, 0xf1, 0xc7, 0xff };
     };
 
+    struct component_style final {
+        color_palette palette = {};
+        std::shared_ptr<Font> font = {};
+        Vector2 position = {};
+        Vector2 size     = {};
+        Vector2 padding  = {};
+        int gap = 0;
+    };
+
     class component {
         public:
-            Vector2 position = {};
-            Vector2 size     = {};
+            component_style style = {};
 
             virtual auto bounds() const noexcept -> Rectangle = 0;
             virtual auto update()       noexcept -> void      = 0;
@@ -28,30 +36,14 @@ namespace gui {
     class flexbox : public component {
         public:
             enum class flex { COLUMN, ROW };
-
-            struct args {
-                Vector2 position;
-                Vector2 size;
-                flex direction;
-                Vector2 padding;
-                Vector2 gap;
-                std::vector<std::shared_ptr<component>> items;
-            };
-
             flex direction;
-            Vector2 padding;
-            Vector2 gap;
 
-            std::vector<std::shared_ptr<component>> items = {};
+            typedef std::vector<std::shared_ptr<component>> items_collection;
+            items_collection items = {};
 
-            flexbox(args flexboxArgs = args {
-                    .position   = Vector2 { 0, 0 },
-                    .size       = Vector2 { 0, 0 },
-                    .direction  = flex::COLUMN,
-                    .padding    = {},
-                    .gap        = {},
-                    .items      = {},
-                    });
+            flexbox(component_style style = {},
+                    flex direction = flex::COLUMN,
+                    std::vector<std::shared_ptr<component>> items = {});
 
             auto bounds() const noexcept -> Rectangle;
             auto update()       noexcept -> void;
@@ -61,34 +53,14 @@ namespace gui {
     class button : public component {
         public:
             typedef std::function<void(void)> event;
-
-            struct args {
-                Vector2 position;
-                Vector2 size;
-                color_palette palette;
-                Vector2 padding;
-                std::shared_ptr<Font> font;
-                std::string label;
-                bool isFocused;
-                event on_click;
-            };
-
-            color_palette palette;
-            Vector2 padding;
-            std::shared_ptr<Font> font;
-            std::string label;
-            bool isFocused;
             event on_click;
 
-            button(args buttonArgs = {
-                    .position   = Vector2 { 0, 0 },
-                    .size       = Vector2 { 0, 0 },
-                    .palette    = {},
-                    .font       = std::make_shared<Font>(Font {}),
-                    .label      = {},
-                    .isFocused  = false,
-                    .on_click   = {},
-                    });
+            std::string label;
+            bool isFocused;
+
+            button(component_style style = {},
+                    std::string label    = {},
+                    event on_click       = {});
 
             auto bounds() const noexcept -> Rectangle;
             auto update()       noexcept -> void;
@@ -98,28 +70,10 @@ namespace gui {
 
     class label : public component {
         public:
-            struct args {
-                Vector2 position;
-                Vector2 size;
-                color_palette palette;
-                Vector2 padding;
-                std::shared_ptr<Font> font;
-                std::variant<std::string, std::shared_ptr<std::string>> text;
-            };
-
-            color_palette palette;
-            Vector2 padding;
-            std::shared_ptr<Font> font;
             std::variant<std::string, std::shared_ptr<std::string>> text;
 
-            label(args labelArgs = {
-                    .position   = Vector2 { 0, 0 },
-                    .size       = Vector2 { 0, 0 },
-                    .palette    = {},
-                    .padding    = Vector2 { 0, 0 },
-                    .font       = std::make_shared<Font>(Font {}),
-                    .text       = {},
-                    });
+            label(component_style style = {},
+                    std::variant<std::string, std::shared_ptr<std::string>> text = {});
 
             auto bounds() const noexcept -> Rectangle;
             auto update()       noexcept -> void;

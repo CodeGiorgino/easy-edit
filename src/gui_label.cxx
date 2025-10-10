@@ -1,21 +1,18 @@
 #include "gui.hxx"
 
 namespace gui {
-    label::label(label::args labelArgs) :
-        palette(labelArgs.palette),
-        padding(labelArgs.padding),
-        font(labelArgs.font),
-        text(labelArgs.text) {
-            position   = labelArgs.position;
-            size       = labelArgs.size;
+    label::label(component_style _style,
+            std::variant<std::string, std::shared_ptr<std::string>> _text) :
+        text(_text) {
+            style = _style;
         }
 
     auto label::bounds() const noexcept -> Rectangle {
         return (Rectangle) {
-            .x = position.x,
-            .y = position.y,
-            .width  = size.x,
-            .height = size.y
+            .x = style.position.x,
+            .y = style.position.y,
+            .width  = style.size.x,
+            .height = style.size.y
         };
     }
 
@@ -32,12 +29,12 @@ namespace gui {
         }
 
         const auto textSize = MeasureTextEx(
-                *font, value.c_str(), (*font).baseSize, 1);
+                *style.font, value.c_str(), (*style.font).baseSize, 1);
 
-        DrawRectangleV(position, size, palette.bg1);
-        DrawTextEx(*font, value.c_str(), Vector2 {
-                    position.x + padding.x,
-                    position.y + padding.y
-                }, (*font).baseSize, 1, palette.fg0);
+        DrawRectangleV(style.position, style.size, style.palette.bg1);
+        DrawTextEx(*style.font, value.c_str(), Vector2 {
+                    style.position.x + style.padding.x,
+                    style.position.y + style.padding.y
+                }, (*style.font).baseSize, 1, style.palette.fg0);
     }
 } // namespace gui
